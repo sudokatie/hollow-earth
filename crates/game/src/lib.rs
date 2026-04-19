@@ -11,3 +11,6 @@ pub mod inventory;
 pub mod networking;
 pub mod sphere;
 pub mod survival;
+
+#[cfg(test)]
+mod integration_tests;
