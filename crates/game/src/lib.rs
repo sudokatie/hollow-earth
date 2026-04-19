@@ -9,4 +9,5 @@ pub mod ecs;
 pub mod entities;
 pub mod inventory;
 pub mod networking;
+pub mod sphere;
 pub mod survival;
