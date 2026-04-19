@@ -1281,6 +1281,28 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "dfa686283ad6dd069f105e5ab091b04c62850d3e4cf5d67debad1933f55023df"
 
 [[package]]
+name = "hollow_earth_game"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "engine_ai",
+ "engine_audio",
+ "engine_core",
+ "engine_network",
+ "engine_physics",
+ "engine_render",
+ "engine_ui",
+ "engine_world",
+ "glam",
+ "hecs",
+ "ron",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.18",
+ "tracing",
+]
+
+[[package]]
 name = "icu_collections"
 version = "2.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1566,28 +1588,6 @@ dependencies = [
  "send_wrapper",
  "symphonia",
  "triple_buffer",
-]
-
-[[package]]
-name = "lattice_game"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "engine_ai",
- "engine_audio",
- "engine_core",
- "engine_network",
- "engine_physics",
- "engine_render",
- "engine_ui",
- "engine_world",
- "glam",
- "hecs",
- "ron",
- "serde",
- "serde_json",
- "thiserror 2.0.18",
- "tracing",
 ]
 
 [[package]]

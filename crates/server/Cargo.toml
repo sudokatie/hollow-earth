@@ -7,7 +7,7 @@ authors.workspace = true
 description = "Lattice survival game server"
 
 [[bin]]
-name = "lattice-server"
+name = "hollow-earth-server"
 path = "src/main.rs"
 
 [dependencies]
