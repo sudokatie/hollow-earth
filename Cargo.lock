@@ -900,6 +900,7 @@ dependencies = [
  "egui-wgpu",
  "egui-winit",
  "engine_core",
+ "glam",
  "thiserror 2.0.18",
  "tracing",
 ]

@@ -9,6 +9,7 @@ mod manager;
 mod music;
 mod sound;
 mod sound_pool;
+pub mod sphere;
 
 pub use ambient::{AmbientBiome, AmbientSound, AmbientSoundController, AMBIENT_CHECK_INTERVAL, AMBIENT_PLAY_CHANCE};
 pub use combat_music::{

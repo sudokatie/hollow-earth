@@ -11,6 +11,7 @@ engine_core = { path = "../engine_core" }
 egui.workspace = true
 egui-wgpu.workspace = true
 egui-winit.workspace = true
+glam.workspace = true
 thiserror.workspace = true
 tracing.workspace = true
 
