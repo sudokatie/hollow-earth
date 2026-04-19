@@ -2,9 +2,238 @@
 //!
 //! Hostile creatures (zombies, skeletons, spiders, creepers) patrol their
 //! home area, detect players, chase them down, and attack.
+//!
+//! Hollow Earth creatures have biome restrictions and special abilities.
 
 use glam::Vec3;
 use serde::{Deserialize, Serialize};
+
+// ============================================================================
+// Hollow Earth Hostile Creatures
+// ============================================================================
+
+/// Biome restriction for Hollow Earth creatures.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub enum BiomeRestriction {
+    /// Can spawn anywhere.
+    Any,
+    /// Only in shell region (outer surface).
+    ShellOnly,
+    /// Only in MossPlains biome.
+    MossPlains,
+    /// Only in FungalForest biome.
+    FungalForest,
+    /// Only in CrystalCaverns biome.
+    CrystalCaverns,
+    /// Only near the core (CoreProximity biome).
+    CoreProximity,
+    /// Only in DeepChasm biome.
+    DeepChasm,
+    /// Only in MagmaFields biome.
+    MagmaFields,
+}
+
+/// Special abilities for Hollow Earth creatures.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub enum SpecialAbility {
+    /// Can walk on walls and ceilings.
+    WallClimb,
+    /// Releases damaging spore cloud (AOE).
+    SporeCloud,
+    /// Emits radiation that damages nearby players passively.
+    RadiationAura,
+    /// Can become invisible/camouflaged.
+    Stealth,
+    /// Can manipulate gravity to repel players.
+    GravityManip,
+}
+
+/// Types of hostile creatures in Hollow Earth.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub enum HollowEarthHostileType {
+    /// Wall-crawling creature that drops chitin.
+    ShellCrawler,
+    /// Stationary trap creature that releases spore clouds.
+    FungalBloom,
+    /// Ethereal creature near the core with radiation aura.
+    CoreWraith,
+    /// Camouflaged serpent in crystal caverns.
+    CrystalSerpent,
+    /// Boss creature with gravity manipulation.
+    AbyssalLeviathan,
+}
+
+/// Drop item from a hostile creature.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub enum HostileDrop {
+    /// Chitin plates from ShellCrawler.
+    Chitin,
+    /// Fungal spores from FungalBloom.
+    FungalSpore,
+    /// Ethereal essence from CoreWraith.
+    EtherealEssence,
+    /// Crystal shard from CrystalSerpent.
+    CrystalShard,
+    /// Void heart from AbyssalLeviathan.
+    VoidHeart,
+}
+
+/// Definition of a Hollow Earth hostile creature.
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct HollowEarthHostile {
+    /// Creature type.
+    pub creature_type: HollowEarthHostileType,
+    /// Base damage dealt per attack.
+    pub damage: u32,
+    /// Health points.
+    pub health: u32,
+    /// Biome restriction for spawning.
+    pub biome_restriction: BiomeRestriction,
+    /// Special abilities this creature has.
+    pub abilities: Vec<SpecialAbility>,
+    /// Primary drop item.
+    pub primary_drop: HostileDrop,
+    /// Whether this is a boss creature.
+    pub is_boss: bool,
+    /// Detection range override (None = use default).
+    pub detection_range: Option<f32>,
+    /// Movement speed multiplier (1.0 = normal).
+    pub speed_multiplier: f32,
+    /// Whether creature is stationary (doesn't move).
+    pub stationary: bool,
+}
+
+impl HollowEarthHostile {
+    /// Create a ShellCrawler - wall-climbing creature on the shell surface.
+    #[must_use]
+    pub fn shell_crawler() -> Self {
+        Self {
+            creature_type: HollowEarthHostileType::ShellCrawler,
+            damage: 4,
+            health: 30,
+            biome_restriction: BiomeRestriction::ShellOnly,
+            abilities: vec![SpecialAbility::WallClimb],
+            primary_drop: HostileDrop::Chitin,
+            is_boss: false,
+            detection_range: None,
+            speed_multiplier: 1.2,
+            stationary: false,
+        }
+    }
+
+    /// Create a FungalBloom - stationary trap in fungal forests.
+    #[must_use]
+    pub fn fungal_bloom() -> Self {
+        Self {
+            creature_type: HollowEarthHostileType::FungalBloom,
+            damage: 3,
+            health: 20,
+            biome_restriction: BiomeRestriction::FungalForest,
+            abilities: vec![SpecialAbility::SporeCloud],
+            primary_drop: HostileDrop::FungalSpore,
+            is_boss: false,
+            detection_range: Some(8.0),
+            speed_multiplier: 0.0,
+            stationary: true,
+        }
+    }
+
+    /// Create a CoreWraith - ethereal creature near the core.
+    #[must_use]
+    pub fn core_wraith() -> Self {
+        Self {
+            creature_type: HollowEarthHostileType::CoreWraith,
+            damage: 8,
+            health: 60,
+            biome_restriction: BiomeRestriction::CoreProximity,
+            abilities: vec![SpecialAbility::RadiationAura],
+            primary_drop: HostileDrop::EtherealEssence,
+            is_boss: false,
+            detection_range: Some(24.0),
+            speed_multiplier: 0.8,
+            stationary: false,
+        }
+    }
+
+    /// Create a CrystalSerpent - camouflaged predator in crystal caverns.
+    #[must_use]
+    pub fn crystal_serpent() -> Self {
+        Self {
+            creature_type: HollowEarthHostileType::CrystalSerpent,
+            damage: 6,
+            health: 45,
+            biome_restriction: BiomeRestriction::CrystalCaverns,
+            abilities: vec![SpecialAbility::Stealth],
+            primary_drop: HostileDrop::CrystalShard,
+            is_boss: false,
+            detection_range: Some(20.0),
+            speed_multiplier: 1.5,
+            stationary: false,
+        }
+    }
+
+    /// Create an AbyssalLeviathan - boss creature in the deep chasms.
+    #[must_use]
+    pub fn abyssal_leviathan() -> Self {
+        Self {
+            creature_type: HollowEarthHostileType::AbyssalLeviathan,
+            damage: 15,
+            health: 500,
+            biome_restriction: BiomeRestriction::DeepChasm,
+            abilities: vec![SpecialAbility::GravityManip],
+            primary_drop: HostileDrop::VoidHeart,
+            is_boss: true,
+            detection_range: Some(40.0),
+            speed_multiplier: 0.6,
+            stationary: false,
+        }
+    }
+
+    /// Check if this creature can spawn in the given biome.
+    #[must_use]
+    pub fn can_spawn_in_biome(&self, biome: &str) -> bool {
+        match self.biome_restriction {
+            BiomeRestriction::Any => true,
+            BiomeRestriction::ShellOnly => biome == "Shell",
+            BiomeRestriction::MossPlains => biome == "MossPlains",
+            BiomeRestriction::FungalForest => biome == "FungalForest",
+            BiomeRestriction::CrystalCaverns => biome == "CrystalCaverns",
+            BiomeRestriction::CoreProximity => biome == "CoreProximity",
+            BiomeRestriction::DeepChasm => biome == "DeepChasm",
+            BiomeRestriction::MagmaFields => biome == "MagmaFields",
+        }
+    }
+
+    /// Check if creature has a specific ability.
+    #[must_use]
+    pub fn has_ability(&self, ability: SpecialAbility) -> bool {
+        self.abilities.contains(&ability)
+    }
+
+    /// Get the effective detection range.
+    #[must_use]
+    pub fn effective_detection_range(&self) -> f32 {
+        self.detection_range.unwrap_or(DETECTION_RANGE)
+    }
+}
+
+/// Radiation aura damage per second.
+pub const RADIATION_AURA_DPS: f32 = 2.0;
+
+/// Radiation aura range in blocks.
+pub const RADIATION_AURA_RANGE: f32 = 5.0;
+
+/// Spore cloud damage per tick.
+pub const SPORE_CLOUD_DAMAGE: u32 = 1;
+
+/// Spore cloud range in blocks.
+pub const SPORE_CLOUD_RANGE: f32 = 4.0;
+
+/// Gravity manipulation repel force.
+pub const GRAVITY_MANIP_FORCE: f32 = 15.0;
+
+/// Gravity manipulation range in blocks.
+pub const GRAVITY_MANIP_RANGE: f32 = 10.0;
 
 /// Detection range in blocks.
 pub const DETECTION_RANGE: f32 = 16.0;
@@ -569,5 +798,113 @@ mod tests {
         // Should move toward target (positive X)
         assert!(action.movement.x > 0.0);
         assert!(action.movement.length() > 0.9); // Normalized
+    }
+
+    // ========================================================================
+    // Hollow Earth Hostile Creature Tests
+    // ========================================================================
+
+    #[test]
+    fn test_shell_crawler_creation() {
+        let crawler = HollowEarthHostile::shell_crawler();
+        assert_eq!(crawler.damage, 4);
+        assert_eq!(crawler.creature_type, HollowEarthHostileType::ShellCrawler);
+        assert_eq!(crawler.biome_restriction, BiomeRestriction::ShellOnly);
+        assert!(crawler.has_ability(SpecialAbility::WallClimb));
+        assert!(!crawler.stationary);
+    }
+
+    #[test]
+    fn test_fungal_bloom_creation() {
+        let bloom = HollowEarthHostile::fungal_bloom();
+        assert_eq!(bloom.damage, 3);
+        assert_eq!(bloom.creature_type, HollowEarthHostileType::FungalBloom);
+        assert_eq!(bloom.biome_restriction, BiomeRestriction::FungalForest);
+        assert!(bloom.has_ability(SpecialAbility::SporeCloud));
+        assert!(bloom.stationary);
+    }
+
+    #[test]
+    fn test_core_wraith_creation() {
+        let wraith = HollowEarthHostile::core_wraith();
+        assert_eq!(wraith.damage, 8);
+        assert_eq!(wraith.creature_type, HollowEarthHostileType::CoreWraith);
+        assert_eq!(wraith.biome_restriction, BiomeRestriction::CoreProximity);
+        assert!(wraith.has_ability(SpecialAbility::RadiationAura));
+    }
+
+    #[test]
+    fn test_crystal_serpent_creation() {
+        let serpent = HollowEarthHostile::crystal_serpent();
+        assert_eq!(serpent.damage, 6);
+        assert_eq!(serpent.creature_type, HollowEarthHostileType::CrystalSerpent);
+        assert_eq!(serpent.biome_restriction, BiomeRestriction::CrystalCaverns);
+        assert!(serpent.has_ability(SpecialAbility::Stealth));
+    }
+
+    #[test]
+    fn test_abyssal_leviathan_creation() {
+        let leviathan = HollowEarthHostile::abyssal_leviathan();
+        assert_eq!(leviathan.damage, 15);
+        assert_eq!(leviathan.creature_type, HollowEarthHostileType::AbyssalLeviathan);
+        assert_eq!(leviathan.biome_restriction, BiomeRestriction::DeepChasm);
+        assert!(leviathan.has_ability(SpecialAbility::GravityManip));
+        assert!(leviathan.is_boss);
+    }
+
+    #[test]
+    fn test_biome_spawn_restrictions() {
+        let crawler = HollowEarthHostile::shell_crawler();
+        assert!(crawler.can_spawn_in_biome("Shell"));
+        assert!(!crawler.can_spawn_in_biome("FungalForest"));
+
+        let bloom = HollowEarthHostile::fungal_bloom();
+        assert!(bloom.can_spawn_in_biome("FungalForest"));
+        assert!(!bloom.can_spawn_in_biome("CrystalCaverns"));
+    }
+
+    #[test]
+    fn test_effective_detection_range() {
+        let crawler = HollowEarthHostile::shell_crawler();
+        assert_eq!(crawler.effective_detection_range(), DETECTION_RANGE);
+
+        let bloom = HollowEarthHostile::fungal_bloom();
+        assert_eq!(bloom.effective_detection_range(), 8.0);
+
+        let leviathan = HollowEarthHostile::abyssal_leviathan();
+        assert_eq!(leviathan.effective_detection_range(), 40.0);
+    }
+
+    #[test]
+    fn test_creature_drops() {
+        assert_eq!(HollowEarthHostile::shell_crawler().primary_drop, HostileDrop::Chitin);
+        assert_eq!(HollowEarthHostile::fungal_bloom().primary_drop, HostileDrop::FungalSpore);
+        assert_eq!(HollowEarthHostile::core_wraith().primary_drop, HostileDrop::EtherealEssence);
+        assert_eq!(HollowEarthHostile::crystal_serpent().primary_drop, HostileDrop::CrystalShard);
+        assert_eq!(HollowEarthHostile::abyssal_leviathan().primary_drop, HostileDrop::VoidHeart);
+    }
+
+    #[test]
+    fn test_boss_identification() {
+        assert!(!HollowEarthHostile::shell_crawler().is_boss);
+        assert!(!HollowEarthHostile::fungal_bloom().is_boss);
+        assert!(!HollowEarthHostile::core_wraith().is_boss);
+        assert!(!HollowEarthHostile::crystal_serpent().is_boss);
+        assert!(HollowEarthHostile::abyssal_leviathan().is_boss);
+    }
+
+    #[test]
+    fn test_speed_multipliers() {
+        let crawler = HollowEarthHostile::shell_crawler();
+        assert!(crawler.speed_multiplier > 1.0); // Fast
+
+        let bloom = HollowEarthHostile::fungal_bloom();
+        assert_eq!(bloom.speed_multiplier, 0.0); // Stationary
+
+        let serpent = HollowEarthHostile::crystal_serpent();
+        assert!(serpent.speed_multiplier > 1.0); // Fast ambush predator
+
+        let leviathan = HollowEarthHostile::abyssal_leviathan();
+        assert!(leviathan.speed_multiplier < 1.0); // Slow boss
     }
 }
