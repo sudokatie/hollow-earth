@@ -1286,6 +1286,7 @@ name = "hollow_earth_game"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "bincode",
  "engine_ai",
  "engine_audio",
  "engine_core",

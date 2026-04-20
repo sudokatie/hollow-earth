@@ -1,6 +1,7 @@
 //! Client-side networking for multiplayer.
 
 pub mod commands;
+pub mod sphere_sync;
 
 use std::time::Duration;
 
